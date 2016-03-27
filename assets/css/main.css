@@ -1,5 +1,30 @@
-svg {
-    border: 1px solid green;
-    width: 900px;
-    height: 500px;
+#body {
+    background: black;
 }
+svg {
+    border: 0px solid green;
+    width: 1200px;
+    height: 600px;
+}
+.buttondemoBasicUsage section {
+  background: #000;
+  border-radius: 0px;
+  text-align: center;
+  margin: 1em;
+  position: relative !important;
+  padding-bottom: 10px; }
+
+.buttondemoBasicUsage md-content {
+  margin-right: 7px; }
+
+.buttondemoBasicUsage section .md-button {
+  margin-top: 16px;
+  margin-bottom: 16px; }
+
+.buttondemoBasicUsage .label {
+  position: absolute;
+  bottom: 5px;
+  left: 7px;
+  font-size: 14px;
+  opacity: 0.54; }
+

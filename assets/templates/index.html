@@ -3,18 +3,31 @@
     <head>
         <title>Instance History</title>
         <link rel="stylesheet" type="text/css" href="static/css/main.css"/>
+        <!-- Angular Material style sheet -->
+        <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.css">
     </head>
-    <body ng-app="InstanceHistory">
-        <header>
-            <h1>Instance History</h1>
-            {{! start }} - {{! end }}
-        </header>
-
+    <body ng-app="InstanceHistory" style="background-color: black;">
+<!--         <div ng-controller="transitionHistory" ng-cloak="" class="buttondemoBasicUsage" ng-app="InstanceHistory">
+            <md-content>
+            <section layout="row" layout-sm="column" layout-align="center center" layout-wrap="">
+                <md-button class="md-fab" aria-label="Eat cake">
+                <md-icon md-svg-src="static/img/cake.svg"></md-icon>
+                </md-button>
+            </section>
+            </md-content>
+        </div>
+ -->        
+    
         <svg history-chart
             range-start="{{! start }}"
-            range-end="{{! end }}"></svg>
-
+            range-end="{{! end }}">
+        </svg>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+        <!-- Angular Material Library -->
+        <script src="//ajax.googleapis.com/ajax/libs/angular_material/1.0.0/angular-material.min.js"></script>
         <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
         <script src="/static/js/stream.js"></script>
     </body>
