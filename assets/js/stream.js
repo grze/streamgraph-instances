@@ -89,8 +89,13 @@ angular.module('InstanceHistory', ['angularMoment'])
                                 .domain([minCores, maxCores])
                                 .range([height, 0]);
                             var area = d3.svg.area()
-                                // .interpolate("basis")
-                                .interpolate("bundle")
+                                 .interpolate("monotone")
+                                 //.interpolate("cardinal-open")
+                                 //.interpolate("bundle-open")
+                                 //.interpolate("step-before")
+                                 //.interpolate("step-after")
+                                 .interpolate("basis")
+                                //.interpolate("bundle")
                                 .x(function (d) {
                                     return xScale(d.x);
                                 })
