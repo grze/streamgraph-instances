@@ -15,11 +15,11 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         self.connection = psycopg2.connect(
-            host='grzegraph.ckseu9rplkxc.us-west-1.rds.amazonaws.com',
+            host='your.url.goes.here',
             port='5432',
-            user='ashamblin',
-            database='ashamblin',
-            password='zoomzoom')
+            user='USERCHANGEMENAME',
+            database='DATABASECHANGEMENAME',
+            password='PASSCHANGEMEWORD')
         self.cursor = self.connection.cursor()
 
 
@@ -36,53 +36,29 @@ class MainHandler(BaseHandler):
 class DataHandler(BaseHandler):
 
     @tornado.gen.coroutine
-    def get(self, date=None):
+    def get(self, endDate=None, date=None):
         datet = datetime.strptime(date,"%Y-%m-%d");
-        enddatetime = datet + timedelta(days=-2)
-        enddate = enddatetime.strftime("%Y-%m-%d")
+        enddate = datetime.strptime(endDate,"%Y-%m-%d");
         print "%s %s" % (date,enddate)
-
         query = '''
-            SELECT SUM(corecount),launchtime,cloudname FROM (
-                SELECT a.launchtime as launchtime, b.cloudname as cloudname,
-                        CASE WHEN (a.corecount IS NULL OR a.cloudname != b.cloudname ) THEN 0 ELSE a.corecount END AS corecount
-                        FROM ( SELECT DISTINCT(cloudname) FROM dupa WHERE CAST(launchtime as DATE) < %s ) as b, dupa as a
-                WHERE CAST(launchtime as DATE) < %s
-                AND CAST(launchtime as DATE) > %s
-                ORDER BY launchtime,cloudname,corecount DESC 
-            ) as result
-            GROUP BY result.launchtime, result.cloudname;
-        '''
-        query = '''
-        SELECT SUM(corecount), hour, cloudname FROM (
-            SELECT a.launchtime as launchtime, EXTRACT(hour from launchtime) as hour, b.cloud as cloudname,
-                    CASE WHEN (a.corecount IS NULL OR a.cloud != b.cloud ) THEN 0 ELSE a.corecount END AS corecount
-            FROM 
-                ( SELECT DISTINCT(cloud) FROM instancehistory WHERE CAST(launchtime as DATE) = %s ) as b, instancehistory as a
-            WHERE CAST(launchtime as TIMESTAMP) < %s 
-            AND CAST(launchtime as TIMESTAMP) >= %s  ORDER BY launchtime,cloudname,corecount DESC 
-        ) as result
-        GROUP BY result.hour, cloudname
-        ORDER BY result.hour
-        '''
-        query = '''
-SELECT SUM(corecount), bucket, cloudname FROM (
-    SELECT a.launchtime as launchtime, 
-            EXTRACT(hour from launchtime) as hour, 
-            EXTRACT(minute from launchtime) as minute, 
-            trunc((EXTRACT(hour from launchtime)*60+EXTRACT(minutes from launchtime)) / 6) as bucket, 
-            b.cloud as cloudname,
-            CASE WHEN (a.corecount IS NULL OR a.cloud != b.cloud ) THEN 0 ELSE a.corecount END AS corecount
-    FROM 
-        ( SELECT DISTINCT(cloud) FROM instancehistory WHERE CAST(launchtime as DATE) = '2014-04-01' ) as b, instancehistory as a
-    WHERE CAST(launchtime as TIMESTAMP) < '2014-04-01 23:59:00' 
-    AND CAST(launchtime as TIMESTAMP) >= '2014-03-31 00:00:00'  ORDER BY launchtime,cloudname,corecount DESC 
-) as result
+SELECT SUM(corecount) as corecount, bucket, cloudname FROM (
+                                                SELECT a.launchtime as launchtime,
+                                                       EXTRACT(hour from launchtime) as hour,
+                                                       EXTRACT(minute from launchtime) as minute,
+                                                       trunc((EXTRACT(hour from launchtime)*60+EXTRACT(minutes from launchtime)) / 120) as bucket,
+                                                       b.cloudname as cloudname,
+                                                       CASE WHEN (a.corecount IS NULL OR a.cloud != b.cloudname ) THEN 0 ELSE a.corecount END AS corecount
+                                                FROM
+                                                  ( SELECT DISTINCT(cloudname) FROM dupa ) as b, instancehistory as a
+                                                WHERE CAST(launchtime as TIMESTAMP) < %s
+                                                      AND CAST(launchtime as TIMESTAMP) >= %s
+                                                ORDER BY launchtime,corecount,cloudname DESC
+                                              ) as result
 GROUP BY result.bucket, cloudname
-ORDER BY cloudname, result.bucket
-        '''
-        print query
-        self.cursor.execute(query, (date,date,enddate,))
+ORDER BY result.bucket, cloudname, corecount
+                '''
+#        print query
+        self.cursor.execute(query, (date,enddate,))
         instances = self.cursor.fetchall()
 
         output = {}
@@ -116,7 +92,7 @@ if __name__ == '__main__':
 
     application = tornado.web.Application([
         (r'/', MainHandler),
-        (r'/data/([0-9-]+)', DataHandler)
+        (r'/data/([0-9-]+)/([0-9-]+)', DataHandler)
     ], **settings)
 
     server = HTTPServer(application)
